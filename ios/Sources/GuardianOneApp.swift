@@ -95,33 +95,41 @@ struct User: Codable, Identifiable {
     let createdAt: Date
 }
 
-/// Flight model
+/// Flight model (matches backend API)
 struct Flight: Codable, Identifiable {
     let id: String
+    let userId: String
     var departureAirport: String?
     var arrivalAirport: String?
-    var departureTime: Date?
+    let aircraftType: String
+    let departureTime: Date
     var arrivalTime: Date?
-    var route: [RoutePoint]
-    var engineData: [EngineDataPoint]
+    var durationMinutes: Int?
     var notes: String?
+    let createdAt: Date
 
-    struct RoutePoint: Codable {
-        let latitude: Double
-        let longitude: Double
-        let altitude: Double // feet MSL
-        let timestamp: Date
-        let speed: Double // knots
-    }
-
-    struct EngineDataPoint: Codable {
-        let timestamp: Date
-        let oilPressure: Double? // PSI
-        let oilTemperature: Double? // °F
-        let cht: Double? // °F (cylinder head temp)
-        let egt: Double? // °F (exhaust gas temp)
-        let rpm: Double?
-        let fuelQuantity: Double? // gallons
+    init(
+        id: String,
+        userId: String,
+        departureAirport: String? = nil,
+        arrivalAirport: String? = nil,
+        aircraftType: String,
+        departureTime: Date,
+        arrivalTime: Date? = nil,
+        durationMinutes: Int? = nil,
+        notes: String? = nil,
+        createdAt: Date
+    ) {
+        self.id = id
+        self.userId = userId
+        self.departureAirport = departureAirport
+        self.arrivalAirport = arrivalAirport
+        self.aircraftType = aircraftType
+        self.departureTime = departureTime
+        self.arrivalTime = arrivalTime
+        self.durationMinutes = durationMinutes
+        self.notes = notes
+        self.createdAt = createdAt
     }
 }
 

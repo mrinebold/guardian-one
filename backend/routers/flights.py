@@ -118,27 +118,73 @@ async def get_engine_trends(flight_id: str):
     Get engine parameter trends (last 10 flights)
 
     Dustin's requirement: Trend graph, alert for out-of-range values
+
+    Algorithm:
+    1. Get last 10 flights with engine data for this aircraft
+    2. Calculate average for each parameter
+    3. Detect trend (increasing/decreasing/stable)
+    4. Alert if values exceed normal range or show concerning trends
     """
-    # TODO (Day 8-9): Query last 10 flights, calculate trends, detect anomalies
-    # For M2 demo, return mock trend data
-    return [
+    if flight_id not in flights_db:
+        raise HTTPException(status_code=404, detail="Flight not found")
+
+    # TODO (Day 8-9): Query actual database for last 10 flights
+    # For M2 demo, generate realistic mock data based on flight_id
+
+    # Mock data simulates 10 flights with gradual CHT increase
+    # (Dustin's scenario: detect engine problems early)
+    mock_trends = [
+        EngineTrendResponse(
+            parameter="oil_pressure",
+            values=[55.0, 54.5, 56.0, 55.0, 54.0, 55.5, 54.0, 53.5, 54.0, 53.0],
+            timestamps=[datetime.now() for _ in range(10)],
+            average=54.5,
+            trend="stable",
+            alert=None
+        ),
         EngineTrendResponse(
             parameter="oil_temperature",
-            values=[180, 185, 183, 187, 190, 192, 195, 197, 200, 203],
+            values=[180.0, 185.0, 183.0, 187.0, 190.0, 192.0, 195.0, 197.0, 200.0, 203.0],
             timestamps=[datetime.now() for _ in range(10)],
             average=191.2,
             trend="increasing",
-            alert="⚠️ Oil temperature trending up - monitor closely"
+            alert="⚠️ Oil temperature trending up - monitor closely (normal: 100-245°F)"
         ),
         EngineTrendResponse(
             parameter="cht",
-            values=[350, 355, 352, 358, 360, 362, 365, 368, 370, 372],
+            values=[350.0, 355.0, 358.0, 362.0, 368.0, 372.0, 378.0, 385.0, 390.0, 398.0],
             timestamps=[datetime.now() for _ in range(10)],
-            average=361.2,
+            average=371.6,
             trend="increasing",
+            alert="⚠️ CHT increasing rapidly - possible cylinder issue (normal: 200-500°F, ideal: <400°F)"
+        ),
+        EngineTrendResponse(
+            parameter="egt",
+            values=[1350.0, 1360.0, 1355.0, 1365.0, 1370.0, 1368.0, 1375.0, 1372.0, 1380.0, 1378.0],
+            timestamps=[datetime.now() for _ in range(10)],
+            average=1367.3,
+            trend="stable",
             alert=None
+        ),
+        EngineTrendResponse(
+            parameter="rpm",
+            values=[2400.0, 2420.0, 2410.0, 2400.0, 2415.0, 2405.0, 2410.0, 2400.0, 2405.0, 2410.0],
+            timestamps=[datetime.now() for _ in range(10)],
+            average=2407.5,
+            trend="stable",
+            alert=None
+        ),
+        EngineTrendResponse(
+            parameter="fuel_quantity",
+            values=[42.0, 40.5, 41.0, 39.5, 40.0, 38.5, 39.0, 37.5, 38.0, 36.5],
+            timestamps=[datetime.now() for _ in range(10)],
+            average=39.3,
+            trend="decreasing",
+            alert="📊 Normal consumption - refuel before next long flight"
         )
     ]
+
+    return mock_trends
 
 @router.get("/")
 async def get_flights(user_id: str, limit: int = 20):

@@ -162,10 +162,357 @@ struct AICoachingView: View {
 }
 
 struct FlightLogView: View {
+    @EnvironmentObject var appState: AppState
+    @StateObject private var flightService = FlightService()
+
+    @State private var showingNewFlight = false
+    @State private var isRefreshing = false
+
     var body: some View {
         NavigationView {
-            Text("Flight Logs")
-                .navigationTitle("Logbook")
+            Group {
+                if flightService.flights.isEmpty && !flightService.isLoading {
+                    emptyStateView
+                } else {
+                    flightListView
+                }
+            }
+            .navigationTitle("Logbook")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingNewFlight = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingNewFlight) {
+                NewFlightView(flightService: flightService)
+            }
+            .onAppear {
+                loadFlights()
+            }
+        }
+    }
+
+    // MARK: - Flight List
+
+    private var flightListView: some View {
+        List {
+            if flightService.isLoading {
+                ProgressView("Loading flights...")
+                    .frame(maxWidth: .infinity)
+            } else {
+                ForEach(flightService.flights) { flight in
+                    NavigationLink(destination: FlightDetailView(flight: flight, flightService: flightService)) {
+                        FlightRowView(flight: flight)
+                    }
+                }
+                .onDelete(perform: deleteFlight)
+            }
+        }
+        .refreshable {
+            await refreshFlights()
+        }
+    }
+
+    // MARK: - Empty State
+
+    private var emptyStateView: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "book")
+                .font(.system(size: 60))
+                .foregroundColor(.gray)
+
+            Text("No Flights Yet")
+                .font(.headline)
+
+            Text("Tap + to create your first flight log")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+
+            Button("Create Flight") {
+                showingNewFlight = true
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
+    // MARK: - Actions
+
+    private func loadFlights() {
+        Task {
+            do {
+                _ = try await flightService.getFlights()
+            } catch {
+                print("❌ Failed to load flights: \(error)")
+            }
+        }
+    }
+
+    private func refreshFlights() async {
+        do {
+            _ = try await flightService.getFlights()
+        } catch {
+            print("❌ Failed to refresh flights: \(error)")
+        }
+    }
+
+    private func deleteFlight(at offsets: IndexSet) {
+        for index in offsets {
+            let flight = flightService.flights[index]
+            Task {
+                do {
+                    try await flightService.deleteFlight(flightId: flight.id)
+                } catch {
+                    print("❌ Failed to delete flight: \(error)")
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Flight Row View
+
+struct FlightRowView: View {
+    let flight: Flight
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            // Route
+            HStack {
+                if let departure = flight.departureAirport {
+                    Text(departure)
+                        .font(.headline)
+                    Image(systemName: "arrow.right")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                if let arrival = flight.arrivalAirport {
+                    Text(arrival)
+                        .font(.headline)
+                } else if flight.departureAirport == nil {
+                    Text("Local Flight")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                Text(flight.aircraftType)
+                    .font(.caption)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.blue)
+                    .cornerRadius(4)
+            }
+
+            // Date and duration
+            HStack {
+                Text(flight.departureTime.formatted(date: .abbreviated, time: .shortened))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                if let duration = flight.durationMinutes {
+                    Text("•")
+                        .foregroundColor(.secondary)
+                    Text("\(duration) min")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            // Notes preview
+            if let notes = flight.notes, !notes.isEmpty {
+                Text(notes)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+// MARK: - Flight Detail View
+
+struct FlightDetailView: View {
+    let flight: Flight
+    @ObservedObject var flightService: FlightService
+
+    @State private var showingEngineEntry = false
+
+    var body: some View {
+        List {
+            Section("Flight Information") {
+                if let departure = flight.departureAirport {
+                    HStack {
+                        Text("Departure")
+                        Spacer()
+                        Text(departure)
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                if let arrival = flight.arrivalAirport {
+                    HStack {
+                        Text("Arrival")
+                        Spacer()
+                        Text(arrival)
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                HStack {
+                    Text("Aircraft")
+                    Spacer()
+                    Text(flight.aircraftType)
+                        .foregroundColor(.secondary)
+                }
+
+                HStack {
+                    Text("Date")
+                    Spacer()
+                    Text(flight.departureTime.formatted(date: .long, time: .shortened))
+                        .foregroundColor(.secondary)
+                }
+
+                if let duration = flight.durationMinutes {
+                    HStack {
+                        Text("Duration")
+                        Spacer()
+                        Text("\(duration) minutes")
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+
+            if let notes = flight.notes, !notes.isEmpty {
+                Section("Notes") {
+                    Text(notes)
+                }
+            }
+
+            Section("Engine Parameters") {
+                Button {
+                    showingEngineEntry = true
+                } label: {
+                    Label("Log Engine Data", systemImage: "gauge")
+                }
+
+                NavigationLink(destination: EngineTrendView(flightService: flightService, flight: flight)) {
+                    Label("View Trends", systemImage: "chart.line.uptrend.xyaxis")
+                }
+            }
+        }
+        .navigationTitle("Flight Details")
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingEngineEntry) {
+            EngineDataEntryView(flightService: flightService, flight: flight)
+        }
+    }
+}
+
+// MARK: - New Flight View
+
+struct NewFlightView: View {
+    @Environment(\.dismiss) var dismiss
+    @ObservedObject var flightService: FlightService
+
+    @State private var departureAirport = ""
+    @State private var arrivalAirport = ""
+    @State private var aircraftType = "C172"
+    @State private var notes = ""
+
+    @State private var isCreating = false
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Route")) {
+                    TextField("Departure Airport (ICAO)", text: $departureAirport)
+                        .autocapitalization(.allCharacters)
+
+                    TextField("Arrival Airport (ICAO)", text: $arrivalAirport)
+                        .autocapitalization(.allCharacters)
+                }
+
+                Section(header: Text("Aircraft")) {
+                    TextField("Aircraft Type", text: $aircraftType)
+                        .autocapitalization(.allCharacters)
+                }
+
+                Section(header: Text("Notes (Optional)")) {
+                    TextEditor(text: $notes)
+                        .frame(height: 100)
+                }
+
+                Section {
+                    Button(action: createFlight) {
+                        HStack {
+                            if isCreating {
+                                ProgressView()
+                                Text("Creating...")
+                            } else {
+                                Text("Create Flight Log")
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .disabled(aircraftType.isEmpty || isCreating)
+                }
+            }
+            .navigationTitle("New Flight")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+            .alert("Flight Log", isPresented: $showAlert) {
+                Button("OK") {
+                    if alertMessage.contains("✅") {
+                        dismiss()
+                    }
+                }
+            } message: {
+                Text(alertMessage)
+            }
+        }
+    }
+
+    private func createFlight() {
+        isCreating = true
+
+        Task {
+            do {
+                _ = try await flightService.createFlight(
+                    departureAirport: departureAirport.isEmpty ? nil : departureAirport.uppercased(),
+                    arrivalAirport: arrivalAirport.isEmpty ? nil : arrivalAirport.uppercased(),
+                    aircraftType: aircraftType.uppercased(),
+                    notes: notes.isEmpty ? nil : notes
+                )
+
+                DispatchQueue.main.async {
+                    isCreating = false
+                    alertMessage = "✅ Flight log created"
+                    showAlert = true
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    isCreating = false
+                    alertMessage = "❌ Failed to create flight: \(error.localizedDescription)"
+                    showAlert = true
+                }
+            }
         }
     }
 }
