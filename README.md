@@ -88,10 +88,18 @@ Guardian One is a freemium Electronic Flight Bag (EFB) app for Cessna 172 pilots
 - Repository created
 - PRD and documentation finalized
 
-### Milestone 2: 10-Day Sprint (Days 2-11)
-- Implement Dustin's 3 must-have features
-- iOS app with GPS + moving map
-- TestFlight build for Dustin
+### Milestone 2: 10-Day Sprint (Days 2-11) 🔄 IN PROGRESS
+**Dustin's 3 Must-Have Features**:
+- ✅ **Feature #1**: ADS-B traffic awareness (GDL90 protocol, <1s latency, audio alerts)
+- ✅ **Feature #2**: AI weather decision support (GPT-4, <3s response, conservative reasoning)
+- ⏳ **Feature #3**: Engine parameter trend analysis (manual entry, trend graphs)
+
+**Current Status (Day 7)**:
+- ✅ iOS app structure (SwiftUI, LocationService, ADSBService, WeatherService)
+- ✅ Backend API (FastAPI, OpenAI integration, NOAA weather fetching)
+- ✅ AI coaching UI (weather analysis form + chat interface)
+- ⏳ Engine logging (pending Days 8-9)
+- ⏳ TestFlight build (Day 10)
 
 ### Milestone 3: Quality Pass (Days 12-21)
 - >80% test coverage
@@ -122,6 +130,72 @@ Guardian One is a freemium Electronic Flight Bag (EFB) app for Cessna 172 pilots
 - App Store submission
 - Production deployment
 - Marketing launch
+
+---
+
+## Dustin's Day 10 Demo Scenario
+
+**Test Date**: November 24, 2025
+
+### Setup (Dustin's Mac in NYC)
+1. Clone repository: `git clone https://github.com/mrinebold/guardian-one`
+2. Start backend: `cd backend && python main.py`
+3. Open iOS project in Xcode: `guardian-one/ios/GuardianOne.xcodeproj`
+4. Run on iPad Air simulator
+
+### Test #1: GPS Accuracy (Feature #1 - Partial)
+**Requirement**: GPS accuracy ±100 ft
+
+1. Launch app on simulator
+2. Navigate to "Map" tab
+3. **Expected**: Blue dot shows simulated position
+4. **Expected**: Altitude, speed, coordinates displayed
+5. **Actual accuracy**: Simulator provides synthetic GPS (not real-world test)
+
+### Test #2: ADS-B Traffic Display (Feature #1)
+**Requirement**: Traffic within 2 NM, ±1,000 ft triggers audio alert
+
+**Note**: Requires Stratux receiver hardware for real testing. For Day 10 demo:
+- Code implemented: `ADSBService.swift:49-114`
+- GDL90 parser functional
+- Mock traffic data for demo
+
+### Test #3: AI Weather Analysis (Feature #2) ✅ READY TO TEST
+**Requirement**: AI responds <3 seconds with conservative recommendation
+
+1. Navigate to "AI Coach" tab
+2. Select "Weather Analysis"
+3. Enter test data:
+   - **From**: KAUS
+   - **To**: KSAT
+   - **Fuel**: 30.5 gallons
+   - **Question**: "Should I fly this route today?"
+4. Tap "Analyze Weather"
+5. **Expected**: Response in <3 seconds
+6. **Expected**: Recommendation (GO/NO-GO/WAIT/DIVERT)
+7. **Expected**: Reasoning with weather citations
+8. **Expected**: Hazards and alternatives listed
+
+**Test METAR** (marginal VFR):
+```
+KAUS 151853Z 18015G25KT 3SM -RA BR OVC015
+```
+
+**Expected AI Response**:
+- Recommendation: **NO-GO** or **WAIT**
+- Reasoning: Cites low ceilings (OVC015 = 1,500 ft), gusty winds (15G25KT), reduced visibility (3SM)
+- Hazards: "Low ceilings below VFR minimums", "Gusty crosswind component", "IMC conditions"
+- Alternatives: "Wait 2-3 hours for front to pass", "File IFR with instructor"
+
+### Test #4: Engine Parameter Logging (Feature #3)
+**Status**: ⏳ Pending (Days 8-9)
+
+### Dustin's Verdict Criteria
+- ✅ App launches without crashes
+- ✅ GPS displays position
+- ✅ AI weather responds <3 seconds
+- ✅ AI reasoning is conservative and cites data
+- ⏳ No crashes during 30-minute test session
 
 ---
 
