@@ -35,11 +35,11 @@ export function TrendChart() {
       const flightsWithParams = last10.filter(flight => flight.engine_params);
 
       const data = flightsWithParams.map((flight) => ({
-        date: new Date(flight.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        oil_temp: flight.engine_params.oil_temp_f,
-        oil_pressure: flight.engine_params.oil_pressure_psi,
-        cht: flight.engine_params.cht_f,
-        egt: flight.engine_params.egt_f,
+        date: new Date(flight.departure_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        oil_temp: flight.engine_params!.oil_temp_f,
+        oil_pressure: flight.engine_params!.oil_pressure_psi,
+        cht: flight.engine_params!.cht_f,
+        egt: flight.engine_params!.egt_f,
       }));
 
       setTrendData(data);

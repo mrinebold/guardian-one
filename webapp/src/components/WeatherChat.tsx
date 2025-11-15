@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import type { WeatherMessage, WeatherAnalysis, Location } from '../types';
+import type { WeatherMessage, Location } from '../types';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
 
