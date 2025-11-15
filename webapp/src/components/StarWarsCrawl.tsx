@@ -10,10 +10,24 @@ export function StarWarsCrawl({ onComplete }: StarWarsCrawlProps) {
   const [showTitle, setShowTitle] = useState(true);
   const [showCrawl, setShowCrawl] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
-  const [showSoundPrompt, setShowSoundPrompt] = useState(true);
+  const [showSoundPrompt, setShowSoundPrompt] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
+    // Try to auto-play music on mount
+    if (audioRef.current) {
+      audioRef.current.play()
+        .then(() => {
+          // Auto-play succeeded
+          setAudioPlaying(true);
+          setShowSoundPrompt(false);
+        })
+        .catch(() => {
+          // Auto-play blocked by browser - show enable button
+          setShowSoundPrompt(true);
+        });
+    }
+
     // Show title for 6 seconds, then start crawl
     const titleTimer = setTimeout(() => {
       setShowTitle(false);
