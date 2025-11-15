@@ -1,0 +1,22 @@
+# Music File Needed
+
+Location: /public/assets/star-wars-theme.mp3
+
+Recommended Source: YouTube Audio Library
+Track: "Epic Cinematic Trailer" by Rafael Krux
+License: Royalty-free, no attribution required
+Duration: 2-3 minutes (will loop)
+File Size: ~3-5 MB (MP3 128kbps)
+
+Download Instructions:
+
+1. Go to https://www.youtube.com/audiolibrary
+2. Search for "Epic Cinematic Trailer" or "Rafael Krux"
+3. Download as MP3
+4. Save to guardian-one/webapp/public/assets/star-wars-theme.mp3
+
+Alternative Sources:
+- Bensound: https://www.bensound.com/ (search "Epic")
+- Suno AI: Generate custom Star Wars-style theme ($10)
+
+The StarWarsCrawl component is already configured to use this file.
