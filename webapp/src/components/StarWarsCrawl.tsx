@@ -9,18 +9,11 @@ interface StarWarsCrawlProps {
 export function StarWarsCrawl({ onComplete }: StarWarsCrawlProps) {
   const [showTitle, setShowTitle] = useState(true);
   const [showCrawl, setShowCrawl] = useState(false);
-  const [audioPlaying, setAudioPlaying] = useState(true);
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [showSoundPrompt, setShowSoundPrompt] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    // Auto-play music on mount
-    if (audioRef.current) {
-      audioRef.current.play().catch(error => {
-        console.log('Auto-play prevented:', error);
-        setAudioPlaying(false);
-      });
-    }
-
     // Show title for 6 seconds, then start crawl
     const titleTimer = setTimeout(() => {
       setShowTitle(false);
@@ -46,6 +39,14 @@ export function StarWarsCrawl({ onComplete }: StarWarsCrawlProps) {
     onComplete();
   };
 
+  const enableSound = () => {
+    if (audioRef.current) {
+      audioRef.current.play();
+      setAudioPlaying(true);
+      setShowSoundPrompt(false);
+    }
+  };
+
   const toggleAudio = () => {
     if (audioRef.current) {
       if (audioPlaying) {
@@ -60,6 +61,15 @@ export function StarWarsCrawl({ onComplete }: StarWarsCrawlProps) {
   return (
     <div className="crawl-container">
       <Starfield />
+
+      {showSoundPrompt && (
+        <div className="sound-prompt">
+          <button onClick={enableSound} className="enable-sound-btn">
+            🔊 Enable Epic Music
+          </button>
+          <p>Click to start with sound</p>
+        </div>
+      )}
 
       {showTitle && (
         <div className="title-card">
@@ -88,12 +98,14 @@ export function StarWarsCrawl({ onComplete }: StarWarsCrawlProps) {
         Skip Intro
       </button>
 
-      <button
-        onClick={toggleAudio}
-        className="audio-button"
-      >
-        {audioPlaying ? '🔇 Mute Music' : '🔊 Play Music'}
-      </button>
+      {!showSoundPrompt && (
+        <button
+          onClick={toggleAudio}
+          className="audio-button"
+        >
+          {audioPlaying ? '🔇 Mute Music' : '🔊 Play Music'}
+        </button>
+      )}
 
       <audio
         ref={audioRef}

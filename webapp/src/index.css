@@ -225,6 +225,50 @@ body {
   background: rgba(254, 218, 74, 0.4);
 }
 
+/* Sound Prompt (Enable Music) */
+.sound-prompt {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  text-align: center;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.enable-sound-btn {
+  padding: 20px 40px;
+  background: rgba(254, 218, 74, 0.3);
+  border: 3px solid #feda4a;
+  color: #feda4a;
+  font-family: 'News Cycle', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(254, 218, 74, 0.5);
+}
+
+.enable-sound-btn:hover {
+  background: rgba(254, 218, 74, 0.5);
+  transform: scale(1.1);
+  box-shadow: 0 0 30px rgba(254, 218, 74, 0.8);
+}
+
+.sound-prompt p {
+  color: #feda4a;
+  font-family: 'News Cycle', sans-serif;
+  font-size: 1rem;
+  margin-top: 15px;
+  opacity: 0.8;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
 /* Onboarding Walkthrough Styles */
 .onboarding-overlay {
   position: fixed;
