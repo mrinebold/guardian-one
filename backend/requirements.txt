@@ -23,7 +23,7 @@ tiktoken==0.5.1               # Token counting for cost tracking
 anthropic==0.7.4              # Claude API (future backup)
 
 # === External APIs ===
-httpx==0.25.1                 # Async HTTP client
+httpx                          # Async HTTP client (version from supabase)
 aiohttp==3.9.0                # Alternative async HTTP
 requests==2.31.0              # Sync HTTP (for simple calls)
 
@@ -41,7 +41,7 @@ shapely==2.0.2                # Airspace polygon checks
 pytest==7.4.3                 # Test framework
 pytest-asyncio==0.21.1        # Async test support
 pytest-cov==4.1.0             # Code coverage
-httpx==0.25.1                 # API testing (already listed above)
+# httpx already listed above under External APIs
 
 # === Development Tools ===
 black==23.11.0                # Code formatter
