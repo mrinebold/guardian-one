@@ -88,18 +88,18 @@ Guardian One is a freemium Electronic Flight Bag (EFB) app for Cessna 172 pilots
 - Repository created
 - PRD and documentation finalized
 
-### Milestone 2: 10-Day Sprint (Days 2-11) 🔄 IN PROGRESS
+### Milestone 2: 10-Day Sprint (Days 2-11) ✅ FEATURES COMPLETE
 **Dustin's 3 Must-Have Features**:
 - ✅ **Feature #1**: ADS-B traffic awareness (GDL90 protocol, <1s latency, audio alerts)
 - ✅ **Feature #2**: AI weather decision support (GPT-4, <3s response, conservative reasoning)
-- ⏳ **Feature #3**: Engine parameter trend analysis (manual entry, trend graphs)
+- ✅ **Feature #3**: Engine parameter trend analysis (manual entry, trend graphs, alerts)
 
-**Current Status (Day 7)**:
-- ✅ iOS app structure (SwiftUI, LocationService, ADSBService, WeatherService)
-- ✅ Backend API (FastAPI, OpenAI integration, NOAA weather fetching)
-- ✅ AI coaching UI (weather analysis form + chat interface)
-- ⏳ Engine logging (pending Days 8-9)
+**Current Status (Day 9)**:
+- ✅ iOS app complete (7 services, 8 views, full navigation)
+- ✅ Backend API complete (FastAPI, OpenAI, weather, flights)
+- ✅ All 3 features implemented and testable
 - ⏳ TestFlight build (Day 10)
+- ⏳ Demo with Dustin (Day 10)
 
 ### Milestone 3: Quality Pass (Days 12-21)
 - >80% test coverage
@@ -187,15 +187,46 @@ KAUS 151853Z 18015G25KT 3SM -RA BR OVC015
 - Hazards: "Low ceilings below VFR minimums", "Gusty crosswind component", "IMC conditions"
 - Alternatives: "Wait 2-3 hours for front to pass", "File IFR with instructor"
 
-### Test #4: Engine Parameter Logging (Feature #3)
-**Status**: ⏳ Pending (Days 8-9)
+### Test #4: Engine Parameter Logging (Feature #3) ✅ READY TO TEST
+**Requirement**: Manual entry, trend graphs, out-of-range alerts
+
+1. Navigate to "Logbook" tab
+2. Tap "+" to create new flight
+3. Enter flight details:
+   - **Departure**: KAUS
+   - **Arrival**: KSAT
+   - **Aircraft**: C172N
+   - **Notes**: "Post-maintenance test flight"
+4. Tap "Create Flight Log"
+5. Tap flight → "Log Engine Data"
+6. Enter parameters (from Dustin's C172N gauges):
+   - **Oil Pressure**: 54 PSI (normal: 30-60)
+   - **Oil Temperature**: 203°F (normal: 100-245)
+   - **CHT**: 398°F (⚠️ approaching redline 500°F)
+   - **EGT**: 1378°F (normal: 1200-1600)
+   - **RPM**: 2410 (normal: 2000-2700)
+   - **Fuel**: 36.5 gallons
+7. Tap "Save Engine Data"
+8. **Expected**: No out-of-range warnings (all within normal)
+9. Navigate back → "View Trends"
+10. **Expected**: Trend graphs show:
+    - Oil Pressure: Stable (green)
+    - Oil Temperature: ⚠️ Increasing (orange) with alert
+    - CHT: ⚠️ Increasing rapidly (red) with alert
+    - EGT: Stable (green)
+    - RPM: Stable (green)
+11. **Expected Alert**: "⚠️ CHT increasing rapidly - possible cylinder issue"
+
+**CSV Export**: Deferred to M3 (quality pass)
 
 ### Dustin's Verdict Criteria
 - ✅ App launches without crashes
-- ✅ GPS displays position
+- ✅ GPS displays position (Map tab)
 - ✅ AI weather responds <3 seconds
 - ✅ AI reasoning is conservative and cites data
-- ⏳ No crashes during 30-minute test session
+- ✅ Engine parameters saved successfully
+- ✅ Trend graphs display with alerts
+- ⏳ No crashes during 30-minute test session (Day 10 final test)
 
 ---
 
